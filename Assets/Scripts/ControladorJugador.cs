@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(Rigidbody))]
 public class ControladorJugador : MonoBehaviour
@@ -42,4 +43,11 @@ public class ControladorJugador : MonoBehaviour
             enSuelo = true;
         }
     }
+    private void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("Prisma"))
+    {
+        SceneManager.LoadScene("Fabric_InGame"); // Escena a cargar
+    }
+}
 }
