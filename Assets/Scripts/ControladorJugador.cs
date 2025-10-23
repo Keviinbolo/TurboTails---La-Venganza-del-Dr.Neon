@@ -45,9 +45,13 @@ public class ControladorJugador : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
 {
-    if (other.CompareTag("Prisma"))
+        if (other.CompareTag("Prisma"))
+        {
+            SceneManager.LoadScene("Fabric_InGame"); // Escena a cargar
+        }
+    if (other.CompareTag("PrismaEnd"))
     {
-        SceneManager.LoadScene("Fabric_InGame"); // Escena a cargar
+        SceneManager.LoadScene("InGame_End"); // Escena a cargar
     }
 }
 }
