@@ -23,6 +23,10 @@ public class ChangeScene : MonoBehaviour
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Menu_InGame");
     }
-
+    public void MoveToHistoria()
+    {
+        
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Historia");
+    }
 
 }
