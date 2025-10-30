@@ -1251,7 +1251,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 919374552}
         m_TargetAssemblyTypeName: ChangeScene, Assembly-CSharp
-        m_MethodName: MoveToNeonLandInGame
+        m_MethodName: MoveToHistoria
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

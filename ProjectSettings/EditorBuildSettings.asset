@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Menu_inGame.unity
     guid: 47dd0d8cb1540d549b59d1d2281c4648
+  - enabled: 1
+    path: Assets/Scenes/Historia.unity
+    guid: 80636950e5b845e4fbdaa8c69114b477
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
