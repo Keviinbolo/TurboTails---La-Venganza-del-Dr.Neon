@@ -7,6 +7,7 @@ TagManager:
   - Suelo
   - Prisma
   - TurboTails
+  - PrismaEnd
   layers:
   - Default
   - TransparentFX
