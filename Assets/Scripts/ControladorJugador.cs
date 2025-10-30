@@ -6,10 +6,10 @@ public class ControladorJugador : MonoBehaviour
 {
     public float velocidad = 5f;
     public float fuerzaSalto = 5f;
-    public float fuerzaDobleSalto = 3f; // fuerza menor para el doble salto
+    public float fuerzaDobleSalto = 5f;
 
     private Rigidbody rb;
-    private int saltosRestantes = 1; // 1 salto adicional (doble salto)
+    private int saltosRestantes = 2;
 
     void Start()
     {
@@ -18,7 +18,6 @@ public class ControladorJugador : MonoBehaviour
 
     void Update()
     {
-        // Movimiento
         float movimientoHorizontal = Input.GetAxis("Horizontal");
         float movimientoVertical = Input.GetAxis("Vertical");
 
@@ -28,16 +27,18 @@ public class ControladorJugador : MonoBehaviour
         Vector3 movimiento = direccion * velocidad * Time.deltaTime;
         rb.MovePosition(rb.position + movimiento);
 
-        // Salto y doble salto
-        if (Input.GetKeyDown(KeyCode.Space))
+        // Saltos
+        if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
         {
-            if (saltosRestantes > 0)
-            {
-                float fuerza = (saltosRestantes == 1) ? fuerzaSalto : fuerzaDobleSalto;
-                rb.velocity = new Vector3(rb.velocity.x, 0f, rb.velocity.z); // resetear velocidad vertical
-                rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
-                saltosRestantes--;
-            }
+            // Resetear velocidad vertical para evitar saltos débiles
+            Vector3 v = rb.linearVelocity;
+            v.y = 0f;
+            rb.linearVelocity = v;
+
+            float fuerza = (saltosRestantes == 2) ? fuerzaSalto : fuerzaDobleSalto;
+            rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+
+            saltosRestantes--;
         }
     }
 
@@ -45,19 +46,16 @@ public class ControladorJugador : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Suelo"))
         {
-            saltosRestantes = 2; // Permite salto + doble salto
+            saltosRestantes = 2; // Siempre recuperar doble salto al tocar suelo
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Prisma"))
-        {
             SceneManager.LoadScene("Fabric_InGame");
-        }
+
         if (other.CompareTag("PrismaEnd"))
-        {
             SceneManager.LoadScene("InGame_End");
-        }
     }
 }
