@@ -30,6 +30,7 @@ public class ControladorJugador : MonoBehaviour
         // Saltos
         if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
         {
+<<<<<<< Updated upstream
             // Resetear velocidad vertical para evitar saltos débiles
             Vector3 v = rb.linearVelocity;
             v.y = 0f;
@@ -39,6 +40,15 @@ public class ControladorJugador : MonoBehaviour
             rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
 
             saltosRestantes--;
+=======
+            if (saltosRestantes > 0)
+            {
+                float fuerza = (saltosRestantes == 1) ? fuerzaSalto : fuerzaDobleSalto;
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // resetear velocidad vertical
+                rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+                saltosRestantes--;
+            }
+>>>>>>> Stashed changes
         }
     }
 
