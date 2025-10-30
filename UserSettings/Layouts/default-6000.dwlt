@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1904
     height: 973
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Inspector
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 100}
   m_MaxSize: {x: 32384, y: 16192}
   vertical: 0
-  controlID: 15
+  controlID: 105
   draggingID: 0
 --- !u!114 &5
 MonoBehaviour:
@@ -147,7 +147,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 100}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 16
+  controlID: 24
   draggingID: 0
 --- !u!114 &7
 MonoBehaviour:
@@ -320,7 +320,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: c86fffff7c75ffff6076ffffc684ffffb4a6ffff7ca7ffff62a8ffff34a9ffffc2aaffffb4baffffb8bdffff2ac3ffff06c4ffffcecfffff98daffffe0dbfffff6ddffff16dfffffd6dfffff1cefffffdcefffff70f1ffff18fbffffb0a7000026a8000072a90000a8a90000baab0000a8ad0000daad000008ae00001aae00003cb3000082b4000096b40000b2b80000
+      m_ExpandedIDs: 10eaffffc0f0ffff7af6ffff0cfbffff08a90000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -441,7 +441,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scenes
+    - Assets/TextMesh Pro/Examples & Extras/Fonts
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -459,7 +459,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: b0230000
     m_LastClickedID: 9136
-    m_ExpandedIDs: 000000001aa600001ca600001ea6000020a6000022a6000024a6000026a60000
+    m_ExpandedIDs: 0000000018a600001aa600001ca600001ea6000020a6000022a6000024a6000026a6000028a600002aa600002ca60000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -488,7 +488,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000001aa600001ca600001ea6000020a6000022a6000024a6000026a60000
+    m_ExpandedIDs: 0000000018a600001aa600001ca600001ea6000020a6000022a6000024a6000026a6000028a600002aa600002ca60000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1027,9 +1027,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 503.64423, y: 245.60435, z: -21.46494}
+    m_Target: {x: 327, y: -105.60962, z: 176.7344}
     speed: 2
-    m_Value: {x: 503.64423, y: 245.60435, z: -21.46494}
+    m_Value: {x: 327, y: -105.60962, z: 176.7344}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1079,9 +1079,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: -0.066252485, y: 0.016153779, z: -0.0010727074, w: -0.9976731}
   m_Size:
-    m_Target: 143.13698
+    m_Target: 12.124355
     speed: 2
-    m_Value: 143.13698
+    m_Value: 12.124355
   m_Ortho:
     m_Target: 0
     speed: 2
