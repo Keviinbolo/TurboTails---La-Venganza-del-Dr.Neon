@@ -371,8 +371,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControladorJugador
   velocidad: 5
-  fuerzaSalto: 7
-  fuerzaDobleSalto: 3
+  fuerzaSalto: 5
+  fuerzaDobleSalto: 5
 --- !u!54 &530986378
 Rigidbody:
   m_ObjectHideFlags: 0
