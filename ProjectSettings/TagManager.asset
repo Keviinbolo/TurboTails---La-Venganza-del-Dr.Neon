@@ -8,6 +8,8 @@ TagManager:
   - Prisma
   - TurboTails
   - PrismaEnd
+  - Cola
+  - Enemigo
   layers:
   - Default
   - TransparentFX
