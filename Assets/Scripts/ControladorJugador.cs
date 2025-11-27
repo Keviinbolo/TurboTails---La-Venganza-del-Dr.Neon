@@ -10,9 +10,8 @@ public class ControladorJugador : MonoBehaviour
     public float fuerzaSalto = 5f;
     public float fuerzaDobleSalto = 5f;
 
-    [Header("Tilt (Inclinación Estética)")]
-    public float inclinacionMax = 15f;     // cuánto se inclina
-    public float suavizadoRot = 6f;        // velocidad de suavizado
+    [Header("Giro Estético")]
+    public float suavizadoRot = 6f; // velocidad de giro hacia dirección de movimiento
 
     [Header("Ataque (Giro)")]
     public float duracionGiro = 0.25f;
@@ -25,63 +24,51 @@ public class ControladorJugador : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
+        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
     }
 
- void Update()
-{
-    float movimientoHorizontal = Input.GetAxis("Horizontal");
-    float movimientoVertical = Input.GetAxis("Vertical");
-
-    Vector3 direccion = new Vector3(movimientoHorizontal, 0f, movimientoVertical);
-
-    if (!atacando)
+    void Update()
     {
-        // Movimiento
-        Vector3 movimiento = transform.TransformDirection(direccion) * velocidad * Time.deltaTime;
-        rb.MovePosition(rb.position + movimiento);
-
-        // Giro hacia la dirección de movimiento si se está moviendo
-        if(direccion.sqrMagnitude > 0.01f) // solo si hay movimiento
+        // Saltos
+        if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
         {
-            Quaternion rotObjetivo = Quaternion.LookRotation(direccion.normalized, Vector3.up);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotObjetivo, Time.deltaTime * 6f);
+            Vector3 v = rb.linearVelocity;
+            v.y = 0f;
+            rb.linearVelocity = v;
+
+            float fuerza = (saltosRestantes == 2) ? fuerzaSalto : fuerzaDobleSalto;
+            rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+            saltosRestantes--;
+        }
+
+        // Ataque
+        if (Input.GetKeyDown(KeyCode.E) && !atacando)
+        {
+            StartCoroutine(GiroDeAtaque());
         }
     }
 
-    // Saltos
-    if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
+    void FixedUpdate()
     {
-        Vector3 v = rb.linearVelocity;
-        v.y = 0f;
-        rb.linearVelocity = v;
+        if (!atacando)
+        {
+            float movimientoHorizontal = Input.GetAxis("Horizontal");
+            float movimientoVertical = Input.GetAxis("Vertical");
 
-        float fuerza = (saltosRestantes == 2) ? fuerzaSalto : fuerzaDobleSalto;
-        rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
-        saltosRestantes--;
-    }
+            Vector3 direccion = new Vector3(movimientoHorizontal, 0f, movimientoVertical);
 
-    // Ataque
-    if (Input.GetKeyDown(KeyCode.E) && !atacando)
-    {
-        StartCoroutine(GiroDeAtaque());
-    }
-}
+            // Movimiento con Rigidbody respetando colisiones
+            Vector3 velocidadMovimiento = transform.TransformDirection(direccion) * velocidad;
+            rb.linearVelocity = new Vector3(velocidadMovimiento.x, rb.linearVelocity.y, velocidadMovimiento.z);
 
-
-    void RotacionPersonaje(float horizontal, float vertical)
-    {
-        // Rotación estética solo si se está moviendo
-        Quaternion rotObjetivo = Quaternion.Euler(
-            vertical * inclinacionMax,
-            0f,
-            -horizontal * inclinacionMax
-        );
-
-        transform.rotation = Quaternion.Lerp(
-            transform.rotation,
-            rotObjetivo,
-            Time.deltaTime * suavizadoRot
-        );
+            // Giro hacia la dirección de movimiento
+            if (direccion.sqrMagnitude > 0.01f)
+            {
+                Quaternion rotObjetivo = Quaternion.LookRotation(direccion.normalized, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rotObjetivo, Time.fixedDeltaTime * suavizadoRot);
+            }
+        }
     }
 
     private IEnumerator GiroDeAtaque()
@@ -91,7 +78,6 @@ public class ControladorJugador : MonoBehaviour
         Quaternion rotacionInicial = transform.rotation;
         Quaternion rotacionGirado = rotacionInicial * Quaternion.Euler(0f, 180f, 0f);
 
-        // --- Giro hacia atrás (ataque) ---
         float t = 0f;
         while (t < duracionGiro)
         {
@@ -101,11 +87,8 @@ public class ControladorJugador : MonoBehaviour
         }
 
         transform.rotation = rotacionGirado;
-        Debug.Log("Zorro giró y atacó con la cola");
-
         yield return new WaitForSeconds(duracionAtaque);
 
-        // --- Volver ---
         t = 0f;
         while (t < duracionGiro)
         {
@@ -123,10 +106,7 @@ public class ControladorJugador : MonoBehaviour
         if (collision.gameObject.CompareTag("Suelo"))
             saltosRestantes = 2;
 
-        if (collision.gameObject.CompareTag("Enemigo"))
-            SceneManager.LoadScene("InGame_Dead");
-
-        if (collision.gameObject.CompareTag("Subsuelo"))
+        if (collision.gameObject.CompareTag("Enemigo") || collision.gameObject.CompareTag("Subsuelo"))
             SceneManager.LoadScene("InGame_Dead");
     }
 
