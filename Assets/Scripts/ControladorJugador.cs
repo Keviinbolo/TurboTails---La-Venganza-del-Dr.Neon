@@ -106,12 +106,12 @@ public class ControladorJugador : MonoBehaviour
         // Destruir jugador si toca enemigo
         if (collision.gameObject.CompareTag("Enemigo"))
         {
-            SceneManager.LoadScene("InGame_End");
+            SceneManager.LoadScene("InGame_Dead");
         }
         // Destruir player si cae al vacío
         if (collision.gameObject.CompareTag("Subsuelo"))
         {
-            SceneManager.LoadScene("InGame_End");
+            SceneManager.LoadScene("InGame_Dead");
         }
     }
 
