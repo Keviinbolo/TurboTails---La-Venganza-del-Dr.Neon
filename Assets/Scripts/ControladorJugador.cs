@@ -108,6 +108,11 @@ public class ControladorJugador : MonoBehaviour
         {
             SceneManager.LoadScene("InGame_End");
         }
+        // Destruir player si cae al vacío
+        if (collision.gameObject.CompareTag("Subsuelo"))
+        {
+            SceneManager.LoadScene("InGame_End");
+        }
     }
 
     private void OnTriggerEnter(Collider other)
