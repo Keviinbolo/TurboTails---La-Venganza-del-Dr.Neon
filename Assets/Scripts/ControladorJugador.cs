@@ -10,9 +10,13 @@ public class ControladorJugador : MonoBehaviour
     public float fuerzaSalto = 5f;
     public float fuerzaDobleSalto = 5f;
 
+    [Header("Tilt (Inclinación Estética)")]
+    public float inclinacionMax = 15f;     // cuánto se inclina
+    public float suavizadoRot = 6f;        // velocidad de suavizado
+
     [Header("Ataque (Giro)")]
-    public float duracionGiro = 0.25f;           // tiempo que tarda en girar
-    public float duracionAtaque = 0.4f;          // cuánto tiempo mantiene la pose
+    public float duracionGiro = 0.25f;
+    public float duracionAtaque = 0.4f;
     private bool atacando = false;
 
     private Rigidbody rb;
@@ -23,38 +27,61 @@ public class ControladorJugador : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
-    void Update()
+ void Update()
+{
+    float movimientoHorizontal = Input.GetAxis("Horizontal");
+    float movimientoVertical = Input.GetAxis("Vertical");
+
+    Vector3 direccion = new Vector3(movimientoHorizontal, 0f, movimientoVertical);
+
+    if (!atacando)
     {
-        // === Movimiento ===
-        if (!atacando) // evita moverse mientras ataca, opcional
+        // Movimiento
+        Vector3 movimiento = transform.TransformDirection(direccion) * velocidad * Time.deltaTime;
+        rb.MovePosition(rb.position + movimiento);
+
+        // Giro hacia la dirección de movimiento si se está moviendo
+        if(direccion.sqrMagnitude > 0.01f) // solo si hay movimiento
         {
-            float movimientoHorizontal = Input.GetAxis("Horizontal");
-            float movimientoVertical = Input.GetAxis("Vertical");
-
-            Vector3 direccion = new Vector3(movimientoHorizontal, 0f, movimientoVertical);
-            direccion = transform.TransformDirection(direccion);
-
-            Vector3 movimiento = direccion * velocidad * Time.deltaTime;
-            rb.MovePosition(rb.position + movimiento);
+            Quaternion rotObjetivo = Quaternion.LookRotation(direccion.normalized, Vector3.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotObjetivo, Time.deltaTime * 6f);
         }
+    }
 
-        // === Saltos ===
-        if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
-        {
-            Vector3 v = rb.linearVelocity;
-            v.y = 0f;
-            rb.linearVelocity = v;
+    // Saltos
+    if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
+    {
+        Vector3 v = rb.linearVelocity;
+        v.y = 0f;
+        rb.linearVelocity = v;
 
-            float fuerza = (saltosRestantes == 2) ? fuerzaSalto : fuerzaDobleSalto;
-            rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
-            saltosRestantes--;
-        }
+        float fuerza = (saltosRestantes == 2) ? fuerzaSalto : fuerzaDobleSalto;
+        rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+        saltosRestantes--;
+    }
 
-        // === Ataque (giro ida y vuelta) ===
-        if (Input.GetKeyDown(KeyCode.E) && !atacando)
-        {
-            StartCoroutine(GiroDeAtaque());
-        }
+    // Ataque
+    if (Input.GetKeyDown(KeyCode.E) && !atacando)
+    {
+        StartCoroutine(GiroDeAtaque());
+    }
+}
+
+
+    void RotacionPersonaje(float horizontal, float vertical)
+    {
+        // Rotación estética solo si se está moviendo
+        Quaternion rotObjetivo = Quaternion.Euler(
+            vertical * inclinacionMax,
+            0f,
+            -horizontal * inclinacionMax
+        );
+
+        transform.rotation = Quaternion.Lerp(
+            transform.rotation,
+            rotObjetivo,
+            Time.deltaTime * suavizadoRot
+        );
     }
 
     private IEnumerator GiroDeAtaque()
@@ -76,10 +103,9 @@ public class ControladorJugador : MonoBehaviour
         transform.rotation = rotacionGirado;
         Debug.Log("Zorro giró y atacó con la cola");
 
-        // --- Mantener posición atacando ---
         yield return new WaitForSeconds(duracionAtaque);
 
-        // --- Volver a posición original ---
+        // --- Volver ---
         t = 0f;
         while (t < duracionGiro)
         {
@@ -89,30 +115,19 @@ public class ControladorJugador : MonoBehaviour
         }
 
         transform.rotation = rotacionInicial;
-
-        Debug.Log("Zorro volvió a su posición inicial");
-
         atacando = false;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        // Recuperar saltos al tocar el suelo
         if (collision.gameObject.CompareTag("Suelo"))
-        {
             saltosRestantes = 2;
-        }
 
-        // Destruir jugador si toca enemigo
         if (collision.gameObject.CompareTag("Enemigo"))
-        {
             SceneManager.LoadScene("InGame_Dead");
-        }
-        // Destruir player si cae al vacío
+
         if (collision.gameObject.CompareTag("Subsuelo"))
-        {
             SceneManager.LoadScene("InGame_Dead");
-        }
     }
 
     private void OnTriggerEnter(Collider other)
