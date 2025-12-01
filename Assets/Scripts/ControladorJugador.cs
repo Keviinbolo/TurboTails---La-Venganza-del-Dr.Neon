@@ -6,69 +6,113 @@ using System.Collections;
 public class ControladorJugador : MonoBehaviour
 {
     [Header("Movimiento")]
-    public float velocidad = 5f;
-    public float fuerzaSalto = 5f;
-    public float fuerzaDobleSalto = 5f;
+    [SerializeField] private float velocidad = 5f;
+    [SerializeField] private float fuerzaSalto = 5f;
+    [SerializeField] private float fuerzaDobleSalto = 5f;
+    [SerializeField] private int saltosMaximos = 2;
 
     [Header("Giro Estético")]
-    public float suavizadoRot = 6f; // velocidad de giro hacia dirección de movimiento
+    [SerializeField] private float suavizadoRot = 6f;
 
     [Header("Ataque (Giro)")]
-    public float duracionGiro = 0.25f;
-    public float duracionAtaque = 0.4f;
-    private bool atacando = false;
+    [SerializeField] private float duracionGiro = 0.25f;
+    [SerializeField] private float duracionAtaque = 0.4f;
+    [SerializeField] private float anguloGiroAtaque = 180f;
 
+    // Constantes de etiquetas
+    private const string TAG_SUELO = "Suelo";
+    private const string TAG_ENEMIGO = "Enemigo";
+    private const string TAG_SUBSUELO = "Subsuelo";
+    private const string TAG_PRISMA = "Prisma";
+    private const string TAG_PRISMA_END = "PrismaEnd";
+
+    // Constantes de escenas
+    private const string SCENE_DEAD = "InGame_Dead";
+    private const string SCENE_FABRIC = "Fabric_InGame";
+    private const string SCENE_END = "InGame_End";
+
+    // Estado
     private Rigidbody rb;
-    private int saltosRestantes = 2;
+    private bool atacando = false;
+    private int saltosRestantes;
 
-    void Start()
+    // Input cacheado
+    private float inputHorizontal;
+    private float inputVertical;
+    private bool jumpPressed;
+    private bool attackPressed;
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        saltosRestantes = saltosMaximos;
     }
 
-    void Update()
+    private void Update()
     {
-        // Saltos
-        if (Input.GetKeyDown(KeyCode.Space) && saltosRestantes > 0)
-        {
-            Vector3 v = rb.linearVelocity;
-            v.y = 0f;
-            rb.linearVelocity = v;
+        // Leer input SOLO aquí
+        inputHorizontal = Input.GetAxisRaw("Horizontal");
+        inputVertical = Input.GetAxisRaw("Vertical");
+        jumpPressed = Input.GetKeyDown(KeyCode.Space);
+        attackPressed = Input.GetKeyDown(KeyCode.E);
 
-            float fuerza = (saltosRestantes == 2) ? fuerzaSalto : fuerzaDobleSalto;
-            rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
-            saltosRestantes--;
+        // Saltos
+        if (jumpPressed && saltosRestantes > 0)
+        {
+            RealizarSalto();
         }
 
         // Ataque
-        if (Input.GetKeyDown(KeyCode.E) && !atacando)
+        if (attackPressed && !atacando)
         {
             StartCoroutine(GiroDeAtaque());
         }
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         if (!atacando)
         {
-            float movimientoHorizontal = Input.GetAxis("Horizontal");
-            float movimientoVertical = Input.GetAxis("Vertical");
-
-            Vector3 direccion = new Vector3(movimientoHorizontal, 0f, movimientoVertical);
-
-            // Movimiento con Rigidbody respetando colisiones
-            Vector3 velocidadMovimiento = transform.TransformDirection(direccion) * velocidad;
-            rb.linearVelocity = new Vector3(velocidadMovimiento.x, rb.linearVelocity.y, velocidadMovimiento.z);
-
-            // Giro hacia la dirección de movimiento
-            if (direccion.sqrMagnitude > 0.01f)
-            {
-                Quaternion rotObjetivo = Quaternion.LookRotation(direccion.normalized, Vector3.up);
-                transform.rotation = Quaternion.Slerp(transform.rotation, rotObjetivo, Time.fixedDeltaTime * suavizadoRot);
-            }
+            MoverJugador();
+            RotarHaciaMovimiento();
         }
+    }
+
+    private void MoverJugador()
+    {
+        Vector3 direccion = new Vector3(inputHorizontal, 0f, inputVertical);
+        Vector3 velocidadMovimiento = transform.TransformDirection(direccion.normalized) * velocidad;
+
+        // Mantener componente Y de la velocidad para no romper gravedad/saltos
+        rb.linearVelocity = new Vector3(velocidadMovimiento.x, rb.linearVelocity.y, velocidadMovimiento.z);
+    }
+
+    private void RotarHaciaMovimiento()
+    {
+        Vector3 direccion = new Vector3(inputHorizontal, 0f, inputVertical);
+        if (direccion.sqrMagnitude > 0.01f)
+        {
+            Quaternion rotObjetivo = Quaternion.LookRotation(direccion.normalized, Vector3.up);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                rotObjetivo,
+                Time.fixedDeltaTime * suavizadoRot
+            );
+        }
+    }
+
+    private void RealizarSalto()
+    {
+        // Resetear velocidad vertical para tener salto consistente
+        Vector3 v = rb.linearVelocity;
+        v.y = 0f;
+        rb.linearVelocity = v;
+
+        float fuerza = (saltosRestantes == saltosMaximos) ? fuerzaSalto : fuerzaDobleSalto;
+        rb.AddForce(Vector3.up * fuerza, ForceMode.Impulse);
+        saltosRestantes--;
     }
 
     private IEnumerator GiroDeAtaque()
@@ -76,46 +120,61 @@ public class ControladorJugador : MonoBehaviour
         atacando = true;
 
         Quaternion rotacionInicial = transform.rotation;
-        Quaternion rotacionGirado = rotacionInicial * Quaternion.Euler(0f, 180f, 0f);
+        Quaternion rotacionGirado =
+            rotacionInicial * Quaternion.Euler(0f, anguloGiroAtaque, 0f);
 
-        float t = 0f;
-        while (t < duracionGiro)
+        // Giro de ida
+        float elapsed = 0f;
+        while (elapsed < duracionGiro)
         {
-            t += Time.deltaTime;
-            transform.rotation = Quaternion.Slerp(rotacionInicial, rotacionGirado, t / duracionGiro);
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duracionGiro);
+            transform.rotation = Quaternion.Slerp(rotacionInicial, rotacionGirado, t);
             yield return null;
         }
-
         transform.rotation = rotacionGirado;
+
+        // Ventana de ataque
         yield return new WaitForSeconds(duracionAtaque);
 
-        t = 0f;
-        while (t < duracionGiro)
+        // Giro de vuelta
+        elapsed = 0f;
+        while (elapsed < duracionGiro)
         {
-            t += Time.deltaTime;
-            transform.rotation = Quaternion.Slerp(rotacionGirado, rotacionInicial, t / duracionGiro);
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / duracionGiro);
+            transform.rotation = Quaternion.Slerp(rotacionGirado, rotacionInicial, t);
             yield return null;
         }
-
         transform.rotation = rotacionInicial;
+
         atacando = false;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Suelo"))
-            saltosRestantes = 2;
+        if (collision.gameObject.CompareTag(TAG_SUELO))
+        {
+            saltosRestantes = saltosMaximos;
+        }
 
-        if (collision.gameObject.CompareTag("Enemigo") || collision.gameObject.CompareTag("Subsuelo"))
-            SceneManager.LoadScene("InGame_Dead");
+        if (collision.gameObject.CompareTag(TAG_ENEMIGO) ||
+            collision.gameObject.CompareTag(TAG_SUBSUELO))
+        {
+            SceneManager.LoadScene(SCENE_DEAD);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Prisma"))
-            SceneManager.LoadScene("Fabric_InGame");
+        if (other.CompareTag(TAG_PRISMA))
+        {
+            SceneManager.LoadScene(SCENE_FABRIC);
+        }
 
-        if (other.CompareTag("PrismaEnd"))
-            SceneManager.LoadScene("InGame_End");
+        if (other.CompareTag(TAG_PRISMA_END))
+        {
+            SceneManager.LoadScene(SCENE_END);
+        }
     }
 }
