@@ -42,13 +42,19 @@ public class ControladorJugador : MonoBehaviour
     private bool jumpPressed;
     private bool attackPressed;
 
+    private Camera cam;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         rb.interpolation = RigidbodyInterpolation.Interpolate;
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         saltosRestantes = saltosMaximos;
+
+        // Obtener la cámara principal
+        cam = Camera.main;
     }
+
 
     private void Update()
     {
@@ -76,25 +82,45 @@ public class ControladorJugador : MonoBehaviour
         if (!atacando)
         {
             MoverJugador();
-            RotarHaciaMovimiento();
+           
         }
     }
 
     private void MoverJugador()
     {
         Vector3 direccion = new Vector3(inputHorizontal, 0f, inputVertical);
-        Vector3 velocidadMovimiento = transform.TransformDirection(direccion.normalized) * velocidad;
 
-        // Mantener componente Y de la velocidad para no romper gravedad/saltos
-        rb.linearVelocity = new Vector3(velocidadMovimiento.x, rb.linearVelocity.y, velocidadMovimiento.z);
+        if (direccion.magnitude > 0.1f)
+        {
+            // Convertir input a dirección relativa a la cámara
+            Vector3 camForward = cam.transform.forward;
+            Vector3 camRight = cam.transform.right;
+
+            camForward.y = 0f;
+            camRight.y = 0f;
+            camForward.Normalize();
+            camRight.Normalize();
+
+            Vector3 direccionRelativa = (camForward * inputVertical + camRight * inputHorizontal).normalized;
+
+            Vector3 velocidadMovimiento = direccionRelativa * velocidad;
+            rb.linearVelocity = new Vector3(velocidadMovimiento.x, rb.linearVelocity.y, velocidadMovimiento.z);
+
+            // Rotar hacia la dirección de movimiento
+            RotarHaciaMovimiento(direccionRelativa);
+        }
+        else
+        {
+            // Frenar en X y Z cuando no hay input
+            rb.linearVelocity = new Vector3(0f, rb.linearVelocity.y, 0f);
+        }
     }
 
-    private void RotarHaciaMovimiento()
+    private void RotarHaciaMovimiento(Vector3 direccionMovimiento)
     {
-        Vector3 direccion = new Vector3(inputHorizontal, 0f, inputVertical);
-        if (direccion.sqrMagnitude > 0.01f)
+        if (direccionMovimiento.sqrMagnitude > 0.01f)
         {
-            Quaternion rotObjetivo = Quaternion.LookRotation(direccion.normalized, Vector3.up);
+            Quaternion rotObjetivo = Quaternion.LookRotation(direccionMovimiento, Vector3.up);
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
                 rotObjetivo,
