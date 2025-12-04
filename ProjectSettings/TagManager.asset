@@ -11,6 +11,7 @@ TagManager:
   - Cola
   - Enemigo
   - Subsuelo
+  - jaula
   layers:
   - Default
   - TransparentFX
