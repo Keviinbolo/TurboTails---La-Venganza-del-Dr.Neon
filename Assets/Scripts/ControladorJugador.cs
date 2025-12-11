@@ -11,6 +11,9 @@ public class ControladorJugador : MonoBehaviour
     [SerializeField] private float fuerzaDobleSalto = 5f;
     [SerializeField] private int saltosMaximos = 2;
 
+    [Header("Referencias")]
+    [SerializeField] private Transform modeloJugador;
+
     [Header("Giro Estético")]
     [SerializeField] private float suavizadoRot = 6f;
 
@@ -53,8 +56,14 @@ public class ControladorJugador : MonoBehaviour
 
         // Obtener la cámara principal
         cam = Camera.main;
-    }
 
+        // Si no se asignó modeloJugador, usar este transform
+        if (modeloJugador == null)
+        {
+            modeloJugador = transform;
+            Debug.Log("Usando transform principal como modelo visual");
+        }
+    }
 
     private void Update()
     {
@@ -82,7 +91,6 @@ public class ControladorJugador : MonoBehaviour
         if (!atacando)
         {
             MoverJugador();
-           
         }
     }
 
@@ -106,8 +114,9 @@ public class ControladorJugador : MonoBehaviour
             Vector3 velocidadMovimiento = direccionRelativa * velocidad;
             rb.linearVelocity = new Vector3(velocidadMovimiento.x, rb.linearVelocity.y, velocidadMovimiento.z);
 
-            // Rotar hacia la dirección de movimiento
-            RotarHaciaMovimiento(direccionRelativa);
+            // Rotar SOLO el modelo hacia la dirección de movimiento
+            // ¡CORRECCIÓN AQUÍ! Se añade el signo negativo para invertir la dirección
+            RotarModeloHaciaMovimiento(-direccionRelativa);
         }
         else
         {
@@ -116,13 +125,13 @@ public class ControladorJugador : MonoBehaviour
         }
     }
 
-    private void RotarHaciaMovimiento(Vector3 direccionMovimiento)
+    private void RotarModeloHaciaMovimiento(Vector3 direccionMovimiento)
     {
         if (direccionMovimiento.sqrMagnitude > 0.01f)
         {
             Quaternion rotObjetivo = Quaternion.LookRotation(direccionMovimiento, Vector3.up);
-            transform.rotation = Quaternion.Slerp(
-                transform.rotation,
+            modeloJugador.rotation = Quaternion.Slerp(
+                modeloJugador.rotation,
                 rotObjetivo,
                 Time.fixedDeltaTime * suavizadoRot
             );
@@ -145,9 +154,9 @@ public class ControladorJugador : MonoBehaviour
     {
         atacando = true;
 
-        Quaternion rotacionInicial = transform.rotation;
-        Quaternion rotacionGirado =
-            rotacionInicial * Quaternion.Euler(0f, anguloGiroAtaque, 0f);
+        // Usar la rotación actual del MODELO, no del transform principal
+        Quaternion rotacionInicial = modeloJugador.rotation;
+        Quaternion rotacionGirado = rotacionInicial * Quaternion.Euler(0f, anguloGiroAtaque, 0f);
 
         // Giro de ida
         float elapsed = 0f;
@@ -155,10 +164,10 @@ public class ControladorJugador : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duracionGiro);
-            transform.rotation = Quaternion.Slerp(rotacionInicial, rotacionGirado, t);
+            modeloJugador.rotation = Quaternion.Slerp(rotacionInicial, rotacionGirado, t);
             yield return null;
         }
-        transform.rotation = rotacionGirado;
+        modeloJugador.rotation = rotacionGirado;
 
         // Ventana de ataque
         yield return new WaitForSeconds(duracionAtaque);
@@ -169,10 +178,10 @@ public class ControladorJugador : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / duracionGiro);
-            transform.rotation = Quaternion.Slerp(rotacionGirado, rotacionInicial, t);
+            modeloJugador.rotation = Quaternion.Slerp(rotacionGirado, rotacionInicial, t);
             yield return null;
         }
-        transform.rotation = rotacionInicial;
+        modeloJugador.rotation = rotacionInicial;
 
         atacando = false;
     }
