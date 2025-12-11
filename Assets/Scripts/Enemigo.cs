@@ -2,9 +2,16 @@ using UnityEngine;
 
 public class Enemigo : MonoBehaviour
 {
-private void OnCollisionEnter(Collision collision)
-{
-    if (collision.gameObject.CompareTag("Cola"))
-        Destroy(gameObject);
-}
+    [SerializeField] private GameObject jaula;
+    
+  private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Cola"))
+        {
+            Debug.Log($"Enemigo normal {gameObject.name} derrotado");
+            
+            // Solo se destruye a sí mismo
+            Destroy(gameObject);
+        }
+    }
 }

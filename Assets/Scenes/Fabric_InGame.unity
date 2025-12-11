@@ -210,10 +210,10 @@ GameObject:
   m_Component:
   - component: {fileID: 365003683}
   - component: {fileID: 365003684}
-  - component: {fileID: 365003688}
   - component: {fileID: 365003687}
   - component: {fileID: 365003685}
   - component: {fileID: 365003686}
+  - component: {fileID: 365003688}
   m_Layer: 0
   m_Name: Dr. Neo
   m_TagString: Enemigo
@@ -256,8 +256,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3.620052, y: 10.575473, z: 4.6309342}
-  m_Center: {x: 0.68858135, y: 5.075074, z: -0.19649369}
+  m_Size: {x: 10.830546, y: 15.359437, z: 5.1172338}
+  m_Center: {x: 0.05808786, y: 7.4670606, z: -0.43964335}
 --- !u!195 &365003685
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -336,9 +336,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 365003682}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 345067028dc396c4eac7b0babf62dfb4, type: 3}
+  m_Script: {fileID: 11500000, guid: a0d54eb08438b394d93ff1f573310c81, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemigo
+  m_EditorClassIdentifier: Assembly-CSharp::BossFinal
+  objetoJaula: {fileID: 686106033}
 --- !u!1 &397608355
 GameObject:
   m_ObjectHideFlags: 0
@@ -863,7 +864,7 @@ GameObject:
   - component: {fileID: 686106034}
   m_Layer: 0
   m_Name: jaula
-  m_TagString: Untagged
+  m_TagString: jaula
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1261,27 +1262,27 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.3877
+      value: 3.801696
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalScale.y
-      value: 2.3877
+      value: 3.801696
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalScale.z
-      value: 2.3877
+      value: 3.801696
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.033598
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 10.24
+      value: 16.24
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -1.65
+      value: -2.5134
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 533bf926c1085fb468ccf69077c57a56, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2148,6 +2149,10 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: af77dba5798f64f40ab6df043971f28f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8391222552659086748, guid: af77dba5798f64f40ab6df043971f28f, type: 3}
+      propertyPath: m_TagString
+      value: jaula
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: af77dba5798f64f40ab6df043971f28f, type: 3}
       propertyPath: m_Name
