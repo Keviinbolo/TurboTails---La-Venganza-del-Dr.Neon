@@ -6,8 +6,8 @@ public class BossFinal : MonoBehaviour
     [SerializeField] private GameObject objetoJaula;
     
     [Header("Sistema de Vida - 3 VIDAS")]
-    [SerializeField] private int vidaMaxima = 3;
-    [SerializeField] private int vidaActual = 3; // ← Siempre 3 al empezar
+    [SerializeField] private int vidaMaxima = 6;
+    [SerializeField] private int vidaActual = 6; // ← Siempre 3 al empezar
     
     [Header("Efectos Visuales")]
     [SerializeField] private Color colorGolpe = Color.red;
@@ -20,8 +20,8 @@ public class BossFinal : MonoBehaviour
     private void Awake()
     {
         // GARANTIZAR 3 VIDAS - Esto se ejecuta primero
-        vidaMaxima = 3;
-        vidaActual = 3;
+        vidaMaxima = 6;
+        vidaActual = 6;
         
         Debug.Log($"<color=green>BOSS CONFIGURADO:</color> {vidaActual}/{vidaMaxima} vidas garantizadas");
     }
@@ -29,11 +29,11 @@ public class BossFinal : MonoBehaviour
     private void Start()
     {
         // Verificación adicional
-        if (vidaActual != 3 || vidaMaxima != 3)
+        if (vidaActual != 6 || vidaMaxima != 6)
         {
             Debug.LogWarning($"<color=yellow>CORRECCIÓN AUTOMÁTICA:</color> Vida {vidaActual}/{vidaMaxima} -> 3/3");
-            vidaMaxima = 3;
-            vidaActual = 3;
+            vidaMaxima = 6;
+            vidaActual = 6;
         }
         
         Debug.Log($"<color=cyan>BOSS INICIALIZADO:</color> {gameObject.name} con {vidaActual} vidas");
