@@ -23,7 +23,7 @@ public class ControladorJugador : MonoBehaviour
     [SerializeField] private float anguloGiroAtaque = 180f;
 
     //personaje 
-   public int vidas = 3;
+    public int vidas = 3;
     private bool esInvulnerable = false; // El interruptor
     public float tiempoInvulnerabilidad = 1f; // 1 segundo
 
