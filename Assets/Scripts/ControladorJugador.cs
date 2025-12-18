@@ -22,6 +22,11 @@ public class ControladorJugador : MonoBehaviour
     [SerializeField] private float duracionAtaque = 0.4f;
     [SerializeField] private float anguloGiroAtaque = 180f;
 
+    //personaje 
+   public int vidas = 3;
+    private bool esInvulnerable = false; // El interruptor
+    public float tiempoInvulnerabilidad = 1f; // 1 segundo
+
     // Constantes de etiquetas
     private const string TAG_SUELO = "Suelo";
     private const string TAG_ENEMIGO = "Enemigo";
@@ -193,11 +198,47 @@ public class ControladorJugador : MonoBehaviour
             saltosRestantes = saltosMaximos;
         }
 
-        if (collision.gameObject.CompareTag(TAG_ENEMIGO) ||
-            collision.gameObject.CompareTag(TAG_SUBSUELO))
+        if (collision.gameObject.CompareTag(TAG_ENEMIGO))
+        {
+           
+            // Solo recibimos daño si NO somos invulnerables
+            if (!esInvulnerable)
+            {
+                vidas--;
+                Debug.Log($"Jugador ha recibido daño. Vidas restantes: {vidas}");
+                if (vidas <= 0)
+                {
+                    Debug.Log("Jugador ha muerto");
+                    SceneManager.LoadScene(SCENE_DEAD);
+                }
+                else
+                {
+                    // Iniciamos el periodo de ser intocable
+                    StartCoroutine(HacerInvulnerable());
+                }
+            }
+        }
+        else if (collision.gameObject.CompareTag(TAG_SUBSUELO))
         {
             SceneManager.LoadScene(SCENE_DEAD);
         }
+
+            // Esta función se encarga de esperar el segundo
+            IEnumerator HacerInvulnerable()
+            {
+                esInvulnerable = true;
+                Debug.Log("Soy invulnerable...");
+
+                // cambiar el color para que el jugador sepa que es intocable
+               // GetComponent<Renderer>().material.color = Color.red;
+
+                yield return new WaitForSeconds(tiempoInvulnerabilidad); // Espera 1 segundo
+
+                esInvulnerable = false;
+               // GetComponent<Renderer>().material.color = Color.white; // Volver al color original
+                Debug.Log("Ya me pueden golpear otra vez");
+            }
+
     }
 
     private void OnTriggerEnter(Collider other)

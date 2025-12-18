@@ -7,15 +7,15 @@ public class MovimientoEnemigo : MonoBehaviour
     public Transform target;           // El jugador
     
     [Header("Detección")]
-    public float detectionRange = 10f; // Rango para detectar al jugador
-    public float attackDistance = 2f;  // Distancia de ataque
+    public float detectionRange = 30f; // Rango para detectar al jugador
+    public float attackDistance = 0f;  // Distancia de ataque
     
     [Header("Configuración de Movimiento")]
     public float rotationSpeed = 5f;   // Velocidad de rotación suave
     
     [Header("Configuración de Ataque")]
-    public float attackCooldown = 1.5f; // Tiempo entre ataques
-    public int damage = 10;            // Daño del ataque
+    public float attackCooldown = 0.5f; // Tiempo entre ataques
+              
 
     [Header("Estados")]
     public bool playerDetected = false;
@@ -74,7 +74,7 @@ public class MovimientoEnemigo : MonoBehaviour
             else
             {
                 // Atacar cuando está cerca
-                AttackPlayer();
+               // AttackPlayer();
             }
         }
         else if (!hasReturned)
@@ -172,10 +172,10 @@ public class MovimientoEnemigo : MonoBehaviour
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             lastAttackTime = Time.time;
-            Debug.Log("¡Ataque al jugador! Daño: " + damage);
+            Debug.Log("¡Ataque al jugador!");
 
             // Aquí puedes llamar al script de salud del jugador
-            // target.GetComponent<PlayerHealth>().TakeDamage(damage);
+           
         }
     }
 
