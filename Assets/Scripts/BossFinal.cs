@@ -1,13 +1,14 @@
 using UnityEngine;
+using System.Collections;
 
 public class BossFinal : MonoBehaviour
 {
     [Header("Configuración del Jefe")]
     [SerializeField] private GameObject objetoJaula;
     
-    [Header("Sistema de Vida - 3 VIDAS")]
+    [Header("Sistema de Vida - 6 VIDAS")]
     [SerializeField] private int vidaMaxima = 6;
-    [SerializeField] private int vidaActual = 6; // ← Siempre 3 al empezar
+    [SerializeField] private int vidaActual = 6;
     
     [Header("Efectos Visuales")]
     [SerializeField] private Color colorGolpe = Color.red;
@@ -15,89 +16,102 @@ public class BossFinal : MonoBehaviour
     
     private Renderer rendererBoss;
     private Color colorOriginal;
-    
-    // Se ejecuta ANTES de Start
-    private void Awake()
-    {
-        // GARANTIZAR 3 VIDAS - Esto se ejecuta primero
-        vidaMaxima = 6;
-        vidaActual = 6;
-        
-        Debug.Log($"<color=green>BOSS CONFIGURADO:</color> {vidaActual}/{vidaMaxima} vidas garantizadas");
-    }
+    private LifeBarContinua barraVida; // NUEVA REFERENCIA
     
     private void Start()
     {
-        // Verificación adicional
-        if (vidaActual != 6 || vidaMaxima != 6)
-        {
-            Debug.LogWarning($"<color=yellow>CORRECCIÓN AUTOMÁTICA:</color> Vida {vidaActual}/{vidaMaxima} -> 3/3");
-            vidaMaxima = 6;
-            vidaActual = 6;
-        }
+        // Inicializar vida
+        vidaActual = vidaMaxima;
         
-        Debug.Log($"<color=cyan>BOSS INICIALIZADO:</color> {gameObject.name} con {vidaActual} vidas");
+        Debug.Log($"BOSS: Vida inicializada - {vidaActual}/{vidaMaxima} (6 vidas total)");
         
-        // Configurar renderer
+        // Obtener renderer para efectos visuales
         rendererBoss = GetComponent<Renderer>();
         if (rendererBoss != null)
         {
             colorOriginal = rendererBoss.material.color;
         }
+        else
+        {
+            Debug.LogWarning("BOSS: No se encontró Renderer para efectos visuales");
+        }
         
-        // Buscar jaula
+        // Buscar LifeBarContinua en hijos (NOMBRE CORREGIDO)
+        barraVida = GetComponentInChildren<LifeBarContinua>();
+        if (barraVida != null)
+        {
+            Debug.Log("Barra de vida continua encontrada en hijos");
+            // Inicializar con 6 vidas llenas
+            barraVida.ActualizarVida(6);
+        }
+        else
+        {
+            Debug.LogWarning("No se encontró LifeBarContinua en los hijos del boss");
+        }
+        
+        // Buscar jaula por tag si no está asignada
         if (objetoJaula == null)
         {
             objetoJaula = GameObject.FindGameObjectWithTag("Jaula");
-            if (objetoJaula != null)
-            {
-                Debug.Log($"Jaula encontrada: {objetoJaula.name}");
-            }
         }
         
-        // Asegurar tag
+        if (objetoJaula != null)
+        {
+            Debug.Log($"BOSS: Jaula asignada - {objetoJaula.name}");
+        }
+        else
+        {
+            Debug.LogWarning("BOSS: No se encontró jaula con tag 'Jaula'");
+        }
+        
+        // Asegurar que tiene tag "Enemigo"
         if (!gameObject.CompareTag("Enemigo"))
         {
             gameObject.tag = "Enemigo";
+            Debug.Log($"BOSS: Tag 'Enemigo' asignado a {gameObject.name}");
         }
     }
     
-    // Método para recibir daño
+    // Método para recibir daño (llamado por la cola)
     public void RecibirDaño(int cantidad = 1)
     {
-        // Verificar que tiene vida
         if (vidaActual <= 0)
         {
-            Debug.Log("BOSS ya está muerto");
+            Debug.Log("BOSS: Ya está muerto, ignorando daño");
             return;
         }
         
-        // Aplicar daño
-        int vidaAnterior = vidaActual;
         vidaActual -= cantidad;
+        Debug.Log($"¡BOSS golpeado! Vida: {vidaActual}/{vidaMaxima} (queda {vidaActual} golpes)");
         
-        Debug.Log($"<color=orange>BOSS DAÑADO:</color> {vidaAnterior} -> {vidaActual}/{vidaMaxima}");
-        
-        // Efecto visual
-        if (rendererBoss != null)
+        // Actualizar LifeBar (NOMBRE CORREGIDO)
+        if (barraVida != null)
         {
-            StartCoroutine(EfectoGolpeVisual());
+            barraVida.ActualizarVida(vidaActual);
         }
         
-        // Verificar muerte
+        // Efecto visual de golpe
+        StartCoroutine(EfectoGolpeVisual());
+        
+        // Verificar si murió
         if (vidaActual <= 0)
         {
             Morir();
         }
     }
     
-    // Efecto visual de golpe
-    private System.Collections.IEnumerator EfectoGolpeVisual()
+    // Efecto visual al recibir daño
+    private IEnumerator EfectoGolpeVisual()
     {
         if (rendererBoss != null)
         {
+            // Cambiar a color rojo
             rendererBoss.material.color = colorGolpe;
+            
+            // Esperar
             yield return new WaitForSeconds(tiempoColorGolpe);
+            
+            // Volver al color original
             rendererBoss.material.color = colorOriginal;
         }
     }
@@ -105,29 +119,43 @@ public class BossFinal : MonoBehaviour
     // Muerte del boss
     private void Morir()
     {
-        Debug.Log($"<color=red>¡BOSS DERROTADO!</color> después de {vidaMaxima} golpes");
+        Debug.Log("¡JEFE DERROTADO después de 6 golpes! Liberando prisioneros...");
         
-        // Destruir jaula
+        // Ocultar barra de vida (NOMBRE CORREGIDO)
+        if (barraVida != null)
+        {
+            barraVida.OcultarBarra();
+        }
+        
+        // Destruir la jaula
         if (objetoJaula != null)
         {
             Destroy(objetoJaula);
             Debug.Log("Jaula destruida - Prisioneros liberados!");
         }
+        else
+        {
+            Debug.LogWarning("BOSS: No hay jaula para destruir");
+        }
         
-        // Destruir boss
+        // Esperar un poco para que se vea la animación de la barra
+        StartCoroutine(EsperarYDestruir());
+    }
+    
+    private IEnumerator EsperarYDestruir()
+    {
+        yield return new WaitForSeconds(0.5f);
+        // Destruir al boss
         Destroy(gameObject);
     }
     
-    // Detectar colisión con cola
+    // También puede recibir daño por trigger
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Cola"))
         {
+            Debug.Log($"BOSS: Golpeado por cola - {other.gameObject.name}");
             RecibirDaño();
         }
     }
-    
-    // Métodos para verificar vida
-    public int GetVidaActual() { return vidaActual; }
-    public int GetVidaMaxima() { return vidaMaxima; }
 }
